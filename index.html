@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dictionary — DSA Project</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #222;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 30px 16px 60px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 24px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: #fff;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    font-size: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    font-family: Arial, sans-serif;
+    transition: background 0.15s;
+  }
+
+  .tab.active {
+    background: #222;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.show { display: block; }
+
+  /* INPUTS */
+  input[type=text] {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    outline: none;
+    margin-bottom: 10px;
+    font-family: Arial, sans-serif;
+  }
+
+  input[type=text]:focus { border-color: #555; }
+
+  button.btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+  }
+
+  button.btn.primary {
+    background: #222;
+    color: #fff;
+    border-color: #222;
+  }
+
+  button.btn:hover { opacity: 0.85; }
+
+  /* SUGGESTIONS DROPDOWN */
+  .suggestions {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+    margin-top: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .sug-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .sug-item:last-child { border-bottom: none; }
+  .sug-item:hover { background: #f9f9f9; }
+
+  .match-hl { color: #1a6ef5; font-weight: 700; }
+  .sug-idx { font-size: 11px; color: #aaa; }
+
+  /* WORD RESULT */
+  .word-result {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 14px;
+  }
+
+  .word-result strong { font-size: 18px; }
+  .word-result p { font-size: 14px; color: #666; margin-top: 6px; }
+
+  /* BINARY SEARCH STEPS */
+  .steps-box {
+    margin-top: 14px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .steps-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .step-row {
+    font-size: 12px;
+    color: #888;
+    padding: 3px 0;
+    font-family: monospace;
+  }
+
+  .step-row.hit { color: #27a059; font-weight: 700; }
+
+  /* INSERT INFO */
+  .insert-info {
+    margin-top: 14px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.8;
+  }
+
+  /* MSG */
+  .msg { font-size: 13px; margin-top: 10px; }
+  .err { color: #e03c3c; }
+  .ok  { color: #27a059; }
+
+  /* TABLE */
+  .table-wrap {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: #f7f7f7;
+    color: #888;
+    font-size: 12px;
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; color: #333; }
+  tr:last-child td { border-bottom: none; }
+  .idx-col { color: #bbb; font-size: 11px; width: 40px; }
+  td.meaning-col { color: #888; }
+
+  /* C++ CODE */
+  .code-panel {
+    background: #1e1e1e;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .code-header {
+    background: #2d2d2d;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: #888;
+    border-bottom: 1px solid #444;
+    font-family: monospace;
+  }
+
+  pre {
+    padding: 18px 20px;
+    font-size: 13px;
+    line-height: 1.9;
+    overflow-x: auto;
+    color: #abb2bf;
+    font-family: 'Courier New', monospace;
+  }
+
+  .kw  { color: #c678dd; }
+  .fn  { color: #61afef; }
+  .str { color: #98c379; }
+  .cm  { color: #5c6370; font-style: italic; }
+  .num { color: #d19a66; }
+
+  /* NOTE BOX */
+  .note {
+    background: #fffbea;
+    border: 1px solid #f0d060;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Dictionary</h1>
+  <p class="subtitle">DSA Project &nbsp;·&nbsp; Sorted Linked List + Binary Search</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('search')">Search</button>
+    <button class="tab" onclick="switchTab('add')">Add Word</button>
+    <button class="tab" onclick="switchTab('browse')">Browse All</button>
+    <button class="tab" onclick="switchTab('code')">C++ Code</button>
+  </div>
+
+  <!-- ─── SEARCH TAB ─── -->
+  <div class="section show" id="tab-search">
+    <div class="note">
+      🔍 Type a word or prefix — uses <strong>Binary Search O(log n)</strong> to find matches
+    </div>
+    <input type="text" id="searchInput" placeholder="Search word..." oninput="onSearch()" autocomplete="off"/>
+    <div id="suggestionsBox"></div>
+    <div id="wordResult"></div>
+    <div id="bsSteps"></div>
+  </div>
+
+  <!-- ─── ADD WORD TAB ─── -->
+  <div class="section" id="tab-add">
+    <div class="note">
+      ➕ New word is inserted at the correct sorted position using <strong>Linked List insertion</strong>
+    </div>
+    <input type="text" id="newWord" placeholder="Word (e.g. recursion)" />
+    <input type="text" id="newMeaning" placeholder="Meaning" />
+    <button class="btn primary" onclick="addWord()">Add to Dictionary</button>
+    <div id="addMsg" class="msg"></div>
+    <div id="insertInfo"></div>
+  </div>
+
+  <!-- ─── BROWSE TAB ─── -->
+  <div class="section" id="tab-browse">
+    <div class="note" style="margin-bottom:14px;">
+      📖 All words sorted A → Z. <span id="dictCount"></span> words total.
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Word</th><th>Meaning</th></tr>
+        </thead>
+        <tbody id="dictTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── C++ CODE TAB ─── -->
+  <div class="section" id="tab-code">
+    <div class="code-panel">
+      <div class="code-header">autocomplete.cpp &nbsp;—&nbsp; DSA: Linked List + Binary Search</div>
+      <pre id="cppBox"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  LINKED LIST NODE
+// ══════════════════════════════════════════════
+function Node(word, meaning) {
+  this.word    = word;
+  this.meaning = meaning;
+  this.next    = null;
+}
+
+// ══════════════════════════════════════════════
+//  INSERT IN SORTED ORDER
+// ══════════════════════════════════════════════
+var head = null;
+
+function insertSorted(word, meaning) {
+  var newNode = new Node(word.toLowerCase().trim(), meaning.trim());
+  if (!head || newNode.word < head.word) {
+    newNode.next = head;
+    head = newNode;
+    return;
+  }
+  var curr = head;
+  while (curr.next && curr.next.word <= newNode.word) {
+    curr = curr.next;
+  }
+  newNode.next = curr.next;
+  curr.next    = newNode;
+}
+
+function exists(word) {
+  var curr = head;
+  while (curr) {
+    if (curr.word === word) return true;
+    curr = curr.next;
+  }
+  return false;
+}
+
+function listToArray() {
+  var arr  = [];
+  var curr = head;
+  while (curr) {
+    arr.push({ word: curr.word, meaning: curr.meaning });
+    curr = curr.next;
+  }
+  return arr;
+}
+
+function binarySearchPrefix(arr, prefix) {
+  var lo     = 0;
+  var hi     = arr.length - 1;
+  var result = -1;
+  var steps  = [];
+  while (lo <= hi) {
+    var mid  = Math.floor((lo + hi) / 2);
+    var word = arr[mid].word;
+    if (word.startsWith(prefix)) {
+      result = mid;
+      steps.push({ hit: true, msg: 'mid=' + mid + '  "' + word + '"  ✓ matches prefix' });
+      hi = mid - 1;
+    } else if (word < prefix) {
+      steps.push({ hit: false, msg: 'mid=' + mid + '  "' + word + '"  < prefix → go RIGHT' });
+      lo = mid + 1;
+    } else {
+      steps.push({ hit: false, msg: 'mid=' + mid + '  "' + word + '"  > prefix → go LEFT' });
+      hi = mid - 1;
+    }
+  }
+  return { result: result, steps: steps };
+}
+
+function bsInsertPos(arr, word) {
+  var lo = 0, hi = arr.length;
+  while (lo < hi) {
+    var mid = Math.floor((lo + hi) / 2);
+    if (arr[mid].word < word) lo = mid + 1;
+    else hi = mid;
+  }
+  return lo;
+}
+
+
+var initWords = [
+  ["abandon", "to give up completely or leave behind without intending to return"],
+  ["abate", "to reduce in amount, degree, or intensity; to become less severe"],
+  ["abbreviate", "to shorten a word, phrase, or text without losing its meaning"],
+  ["aberration", "a departure from what is normal, expected, or typical"],
+  ["abhor", "to regard with extreme hatred or disgust; to loathe"],
+  ["abide", "to accept or act in accordance with; to tolerate or endure"],
+  ["abolish", "to formally put an end to a law, system, or practice"],
+  ["abrupt", "sudden and unexpected; marked by rudeness or curtness"],
+  ["abstract", "existing in thought or as an idea but not having a physical existence"],
+  ["abstraction", "the process of removing physical or concrete details; hiding complexity behind simple interface"],
+  ["absurd", "wildly unreasonable or illogical; contrary to all reason or propriety"],
+  ["abundant", "existing or available in large quantities; plentiful"],
+  ["abyss", "a deep immeasurable space, gulf, or cavity; an unfathomable depth"],
+  ["accelerate", "to increase in rate, speed, or amount; to cause to go faster"],
+  ["accessible", "able to be reached, entered, or used; easy to approach or understand"],
+  ["acclaim", "enthusiastic and public praise or approval"],
+  ["accolade", "an award or privilege granted as a special honor; an expression of praise"],
+  ["accomplish", "to succeed in doing or achieving something difficult"],
+  ["accumulate", "to gather together or acquire an increasing number or quantity"],
+  ["accurate", "correct in all details; free from errors or mistakes"],
+  ["achieve", "to successfully bring about or reach a desired result or goal"],
+  ["acknowledge", "to accept or admit the existence or truth of something"],
+  ["acquire", "to buy or obtain an asset or object; to learn or develop"],
+  ["acumen", "the ability to make good judgments and quick decisions; shrewdness"],
+  ["adapt", "to make something suitable for a new use or purpose; to adjust"],
+  ["adept", "very skilled or proficient at something; a person who is skilled"],
+  ["adequate", "satisfactory or acceptable in quality or quantity"],
+  ["adhere", "to stick firmly to a surface; to believe in and follow the practices of"],
+  ["adjacent", "next to or adjoining something else; nearby"],
+  ["admire", "to regard with respect, warm approval, or satisfaction"],
+  ["adopt", "to legally take another's child as one's own; to take up or start using"],
+  ["adorn", "to make more beautiful or attractive; to decorate"],
+  ["adversity", "difficult or unpleasant circumstances; misfortune or hardship"],
+  ["advocate", "to publicly recommend or support; a person who pleads on behalf of another"],
+  ["aesthetic", "concerned with beauty or the appreciation of beauty"],
+  ["affect", "to have an effect on; to make a difference to"],
+  ["affirm", "to state as a fact; to assert strongly and publicly"],
+  ["aggravate", "to make a problem or offense worse or more serious; to annoy"],
+  ["agile", "able to move quickly and easily; relating to agile development methods"],
+  ["agnostic", "not committed to any particular view; in computing independent of specific hardware or OS"],
+  ["algorithm", "a process or set of rules followed in calculations or problem-solving"],
+  ["alleviate", "to make something less severe; to reduce pain or difficulty"],
+  ["allocate", "to distribute resources or duties for a particular purpose"],
+  ["aloof", "not friendly or forthcoming; cool and distant; removed or distant"],
+  ["altruism", "the belief in or practice of disinterested selfless concern for others"],
+  ["ambiguous", "open to more than one interpretation; not having one obvious meaning"],
+  ["ambitious", "having or showing a strong desire and determination to succeed"],
+  ["ambivalent", "having mixed feelings or contradictory ideas about something"],
+  ["amend", "to make changes to a legal or statutory document; to improve"],
+  ["amiable", "having or displaying a friendly and pleasant manner; agreeable"],
+  ["ample", "enough or more than enough; plentiful; of a large or generous size"],
+  ["amplify", "to increase the volume or strength of; to make larger or more powerful"],
+  ["analyze", "to examine something in detail in order to understand it better"],
+  ["ancient", "belonging to the very distant past; having existed for a very long time"],
+  ["anecdote", "a short amusing or interesting story about a real incident or person"],
+  ["annotation", "a note of explanation or comment added to a text or diagram; metadata tag"],
+  ["anomaly", "something that deviates from what is standard, normal, or expected"],
+  ["antagonist", "a person who actively opposes or is hostile to someone; an adversary"],
+  ["anticipate", "to expect or predict; to act in advance to deal with something"],
+  ["apathy", "lack of interest, enthusiasm, or concern about something"],
+  ["aphorism", "a pithy observation that contains a general truth; a concise statement"],
+  ["api", "application programming interface; a set of rules allowing programs to communicate"],
+  ["apparent", "clearly visible or understood; seeming real or true but not necessarily so"],
+  ["appease", "to pacify or placate someone by acceding to their demands; to satisfy"],
+  ["apt", "appropriate or suitable in the circumstances; quick to learn"],
+  ["arbitrary", "based on random choice rather than any reason or system"],
+  ["archive", "a collection of historical documents or records; to store information"],
+  ["ardor", "enthusiasm or passion; great warmth of feeling; intensity of emotion"],
+  ["arduous", "involving or requiring strenuous effort; difficult and tiring"],
+  ["array", "a data structure consisting of elements identified by index or key; an ordered collection"],
+  ["articulate", "having or showing the ability to speak fluently and coherently; to express clearly"],
+  ["aspire", "to direct one's hopes or ambitions toward achieving something"],
+  ["assert", "to state a fact or belief confidently and forcefully"],
+  ["assess", "to evaluate or estimate the nature, ability, or quality of something"],
+  ["assimilate", "to take in and understand fully; to absorb into a larger group"],
+  ["astute", "having the ability to accurately assess situations; shrewd and clever"],
+  ["asynchronous", "not occurring at the same time; in programming allowing other code to run while waiting"],
+  ["atrocity", "an extremely wicked or cruel act; a highly unpleasant thing"],
+  ["attain", "to succeed in achieving; to reach or come to a place or condition"],
+  ["augment", "to make something greater by adding to it; to increase"],
+  ["authenticate", "to prove or confirm that something is genuine, legitimate, or true"],
+  ["authentication", "the process of verifying the identity of a user, process, or device"],
+  ["authorization", "the process of giving someone official permission to do or have something"],
+  ["autonomous", "having the freedom to govern itself or control its own affairs"],
+  ["avid", "having or showing a keen interest in or enthusiasm for something"],
+  ["backend", "the part of a computer system or application not directly accessed by the user"],
+  ["baffle", "to totally bewilder or perplex; to frustrate by confusing"],
+  ["balance", "an even distribution of weight enabling someone to remain upright; equilibrium"],
+  ["bandwidth", "a range of frequencies within a given band; data transmission capacity"],
+  ["banish", "to send someone away from a country as punishment; to drive away"],
+  ["beleaguer", "to be in a very difficult situation; to put in a difficult position"],
+  ["benchmark", "a standard or point of reference against which things may be compared"],
+  ["benevolent", "well meaning and kindly; organized for the benefit of others"],
+  ["binary", "relating to a system using only two values typically zero and one"],
+  ["blatant", "done openly and unashamedly; completely lacking in subtlety"],
+  ["blockchain", "a system of recording information in a way that makes it difficult to change"],
+  ["boilerplate", "standardized text or code that can be reused without significant alteration"],
+  ["bolster", "to support or strengthen; to prop up or reinforce"],
+  ["boolean", "a data type having one of two values: true or false; relating to George Boole"],
+  ["boon", "a thing that is helpful or beneficial; a blessing or benefit"],
+  ["bottleneck", "a point of congestion in a system that impedes progress; a limiting factor"],
+  ["branch", "a separate line of development in version control; a conditional fork in code"],
+  ["breakpoint", "a point in a program where execution can be paused for debugging purposes"],
+  ["brevity", "concise and exact use of words in writing or speech; shortness of time"],
+  ["broadcast", "to transmit a program or information by radio or television"],
+  ["buffer", "a temporary storage area that holds data being transferred between devices"],
+  ["bytecode", "a set of instructions designed for efficient execution by a software interpreter"],
+  ["byzantine", "excessively complicated and typically involving a great deal of administrative detail"],
+  ["cache", "a collection of items of the same type stored in a hidden or inaccessible place"],
+  ["calculate", "to determine the amount or number of something mathematically"],
+  ["calibrate", "to mark a gauge with a standard scale of readings; to adjust precisely"],
+  ["callback", "a function passed to another function to be executed at a later time"],
+  ["candid", "truthful and straightforward; frank; open and honest"],
+  ["candor", "the quality of being open and honest in expression; frankness"],
+  ["capacity", "the maximum amount that something can contain or produce"],
+  ["catalyst", "a substance that increases the rate of a reaction; a person who causes change"],
+  ["catharsis", "the process of releasing strong or repressed emotions in a healthy way"],
+  ["caveat", "a warning or proviso of specific stipulations, conditions, or limitations"],
+  ["censure", "to express severe disapproval; strong criticism or disapproval"],
+  ["cerebral", "relating to the intellect; intellectual rather than emotional"],
+  ["certificate", "an electronic document proving ownership of a public key in cryptography"],
+  ["chasm", "a deep fissure in the earth; a profound difference between people"],
+  ["chronological", "relating to the arrangement of events or dates in the order of occurrence"],
+  ["circumstantial", "pointing indirectly toward something; relating to particular circumstances"],
+  ["cite", "to quote as evidence; to mention as an example; to summon officially"],
+  ["clandestine", "kept secret or done secretly, especially because it is illicit"],
+  ["clarity", "the quality of being coherent and intelligible; freedom from ambiguity"],
+  ["class", "a blueprint for creating objects in object-oriented programming"],
+  ["client", "a computer that accesses a server; the customer or person receiving a service"],
+  ["closure", "a function bundled with its surrounding state; an inner function accessing outer variables"],
+  ["coerce", "to persuade an unwilling person to do something by using force or threats"],
+  ["coherent", "logical and consistent; able to speak clearly and be understood"],
+  ["collaborate", "to work jointly with others on a project or intellectual undertaking"],
+  ["collateral", "security pledged for the repayment of a loan; something pledged as security"],
+  ["compile", "to produce a collection of information gathered from other sources"],
+  ["compiler", "a program that translates source code into machine code or bytecode"],
+  ["component", "a reusable building block in software or hardware; a distinct part of a system"],
+  ["compress", "to flatten by pressure; to reduce a file to smaller size without data loss"],
+  ["concise", "giving a lot of information clearly and in a few words; brief but comprehensive"],
+  ["concurrency", "the ability of different parts of a program to be executed out of order"],
+  ["concurrent", "existing, happening, or done at the same time"],
+  ["condescend", "to show feelings of superiority; to act patronizingly toward someone"],
+  ["condone", "to accept and allow behavior that is considered morally wrong"],
+  ["configuration", "the arrangement of parts or elements; the way a system is set up"],
+  ["congruent", "in agreement or harmony; having the same size and shape"],
+  ["conjecture", "an opinion or conclusion formed on the basis of incomplete information"],
+  ["connotation", "an idea or feeling that a word invokes beyond its literal meaning"],
+  ["consensus", "a general agreement among a group of people; collective opinion"],
+  ["constraint", "a limitation or restriction; something that limits freedom of action"],
+  ["constructor", "a method called automatically when an object is created; an initializer"],
+  ["container", "an isolated environment for running applications; a Docker container"],
+  ["contemplate", "to look thoughtfully for a long time; to think deeply about something"],
+  ["contentious", "causing or likely to cause argument; controversial"],
+  ["context", "the circumstances surrounding an event; in computing the current state of execution"],
+  ["contiguous", "sharing a common border; next or together in sequence"],
+  ["contradict", "to deny the truth of a statement by asserting the opposite"],
+  ["converge", "to come together from different directions to meet at a point"],
+  ["copious", "abundant in supply or quantity; large in amount; plentiful"],
+  ["coroutine", "a component for cooperative multitasking allowing pausing and resuming execution"],
+  ["correlate", "to have a mutual relationship or connection with something"],
+  ["credible", "able to be believed; convincing; of reliable and trustworthy character"],
+  ["cryptography", "the practice of writing or solving codes; secure communication techniques"],
+  ["culminate", "to reach a climax or point of highest development"],
+  ["cumbersome", "large or heavy and therefore difficult to carry or use; slow or complicated"],
+  ["cumulative", "increasing or increased in quantity by successive additions"],
+  ["curate", "to select, organize, and look after items in a collection; to carefully gather"],
+  ["daemon", "a background process in a computer system that runs without user interaction"],
+  ["daunting", "seeming difficult to deal with in anticipation; intimidating"],
+  ["deadlock", "a situation in concurrent computing where processes cannot proceed because each waits for the other"],
+  ["debugging", "the process of finding and resolving defects in computer software or hardware"],
+  ["decipher", "to succeed in understanding something difficult; to convert coded writing to normal script"],
+  ["decisive", "settling an issue; producing a definite result; having the ability to make decisions"],
+  ["declaration", "a statement that introduces a variable, function, or class without defining it fully"],
+  ["declarative", "taking the form of a declaration; relating to programming that specifies what"],
+  ["decorum", "behavior in keeping with good taste and propriety; dignified propriety"],
+  ["deduce", "to arrive at a conclusion by reasoning; to infer from evidence"],
+  ["deferential", "showing deference; respectful and submissive"],
+  ["defunct", "no longer existing or functioning; dead or no longer in use"],
+  ["delegate", "to entrust a task or responsibility to another person; a representative"],
+  ["deliberate", "done consciously and intentionally; careful and unhurried in speech or movement"],
+  ["delicate", "very fine in texture or structure; fragile; requiring careful handling"],
+  ["delineate", "to describe or portray precisely; to indicate the exact position of a boundary"],
+  ["denounce", "to publicly declare to be wrong or evil; to inform against"],
+  ["dependency", "a module or library that a project relies on to function correctly"],
+  ["deploy", "to move troops into position; to bring into effective action; to release software"],
+  ["deployment", "the process of making software available for use in a production environment"],
+  ["deprecate", "to express disapproval; in computing to phase out a feature or method"],
+  ["derivative", "something based on another source; not original; obtained by differentiation"],
+  ["derogatory", "showing a critical or disrespectful attitude; belittling"],
+  ["despondent", "in low spirits from loss of hope or courage; feeling hopeless"],
+  ["destructor", "a method called automatically when an object is destroyed to free resources"],
+  ["deterministic", "relating to a process whose outcome is determined by its initial conditions"],
+  ["deviate", "to depart from an established course or accepted standard"],
+  ["devious", "showing a skillful use of underhanded tactics; not straight; roundabout"],
+  ["dexterous", "showing or having skill, especially with the hands; mentally adroit"],
+  ["diffident", "modest or shy because of a lack of self-confidence; timid"],
+  ["diligent", "having or showing care and conscientiousness in one's work or duties"],
+  ["discern", "to recognize or find out; to distinguish by sight; to perceive"],
+  ["discrepancy", "a lack of compatibility or similarity between two or more facts"],
+  ["disdain", "the feeling that someone or something is unworthy; contempt"],
+  ["disheveled", "untidy in appearance; with disordered hair or clothing"],
+  ["disparate", "essentially different in kind; not allowing comparison"],
+  ["dispatch", "to send off to a destination or for a purpose; speed or promptness"],
+  ["dispel", "to make something go away; to drive away or scatter; to banish"],
+  ["disrupt", "to interrupt or prevent the normal process or progress of something"],
+  ["dissent", "to hold or express opinions different from an official or orthodox position"],
+  ["distinct", "recognizably different in nature; clear to the senses or mind"],
+  ["diverge", "to separate from another route, especially a main one; to differ"],
+  ["dogmatic", "inclined to lay down principles as incontrovertibly true; asserting opinions"],
+  ["dubious", "not to be relied upon; uncertain; hesitating or doubting"],
+  ["durable", "able to withstand wear, pressure, or damage; sturdy; long-lasting"],
+  ["dynamic", "constantly changing and active; energetic; relating to forces producing motion"],
+  ["earnest", "resulting from or showing sincere and intense conviction; serious"],
+  ["eccentric", "unconventional and slightly strange behavior; a person with unusual habits"],
+  ["eclectic", "deriving ideas from a broad range of sources; not following one style"],
+  ["edify", "to instruct or improve morally or intellectually; to enlighten"],
+  ["efficacy", "the ability to produce a desired or intended result"],
+  ["egregious", "outstandingly bad; shocking; extraordinarily flagrant"],
+  ["elaborate", "involving many carefully arranged parts or details; to develop in detail"],
+  ["eloquent", "fluent or persuasive in speaking or writing; clearly expressing or indicating"],
+  ["elusive", "difficult to find, catch, or achieve; avoiding to be defined"],
+  ["embellish", "to make more attractive by adding decorative details; to exaggerate"],
+  ["empirical", "based on observation or experience rather than theory or pure logic"],
+  ["emulate", "to match or surpass by imitation; to imitate with the effort to equal"],
+  ["encapsulate", "to express the essential features of something succinctly; to enclose"],
+  ["encapsulation", "bundling data and methods into a single unit; hiding internal implementation details"],
+  ["encode", "to convert into a coded form; to convert information into a particular format"],
+  ["encompass", "to surround and have within; to include comprehensively"],
+  ["endpoint", "a specific URL where an API can be accessed; a device connected to a network"],
+  ["enhance", "to intensify, increase, or further improve the quality of something"],
+  ["enigma", "a person or thing that is mysterious or difficult to understand"],
+  ["enumerate", "to mention several things one by one; to establish the number of"],
+  ["enumeration", "a complete ordered list of items; a data type with a fixed set of named values"],
+  ["ephemeral", "lasting for a very short time; transitory"],
+  ["equilibrium", "a state in which opposing forces or influences are balanced"],
+  ["esteem", "to respect and admire highly; a feeling of great respect and approval"],
+  ["ethical", "relating to moral principles; morally correct; avoiding activities that are harmful"],
+  ["evaluate", "to form an idea of the amount, number, or value of; to assess"],
+  ["evasive", "tending to avoid commitment or self-revelation; vague or misleading"],
+  ["evoke", "to bring or recall a feeling, memory, or image to the conscious mind"],
+  ["evolve", "to develop gradually; to give off gas or heat during a chemical reaction"],
+  ["exacerbate", "to make a problem, bad situation, or negative feeling worse"],
+  ["exception", "an error condition that disrupts normal program flow; an anomalous event"],
+  ["exorbitant", "unreasonably high or excessive in price; going beyond what is reasonable"],
+  ["expedite", "to make an action or process happen sooner or be accomplished more quickly"],
+  ["explicit", "stated clearly and in detail; leaving no room for confusion or doubt"],
+  ["exponential", "becoming more and more rapid; relating to an exponent in mathematics"],
+  ["extrapolate", "to extend the application of a method to an unknown situation by inference"],
+  ["fabricate", "to invent in order to deceive; to construct or manufacture something"],
+  ["facetious", "treating serious issues with deliberately inappropriate humor"],
+  ["facilitate", "to make an action or process easier; to assist the progress of"],
+  ["fallacy", "a mistaken belief based on unsound argument; a failure in reasoning"],
+  ["fallible", "capable of making mistakes or being wrong; liable to fail"],
+  ["feasible", "possible to do easily or conveniently; likely or probable"],
+  ["fervent", "having or displaying a passionate intensity; showing great warmth"],
+  ["finite", "having limits or bounds; not infinite; able to be measured or counted"],
+  ["firewall", "a network security system that monitors and controls incoming and outgoing traffic"],
+  ["flaw", "a mark, blemish, or imperfection; a mistake that spoils something"],
+  ["fluctuate", "to rise and fall irregularly in number or amount; to be unstable"],
+  ["fluent", "speaking or writing a language easily and accurately; able to flow smoothly"],
+  ["formidable", "inspiring fear or respect through being impressively large or capable"],
+  ["formulate", "to create or devise methodically; to express precisely"],
+  ["fortitude", "courage in pain or adversity; mental and emotional strength in facing difficulty"],
+  ["foster", "to encourage or promote the development of something; to raise a child"],
+  ["fractal", "a curve or geometrical figure showing self-similar patterns at all scales"],
+  ["fragment", "a small part broken off or separated from something; an incomplete part"],
+  ["framework", "a platform for developing software applications providing reusable code structures"],
+  ["frequency", "the rate at which something occurs over a particular period; number of cycles per second"],
+  ["frugal", "sparing or economical as regards money or food; simple and plain"],
+  ["function", "a relationship in which one quantity depends on another; a purpose or task"],
+  ["fundamental", "forming a necessary base or core; of central importance"],
+  ["futile", "incapable of producing any useful result; pointless; ineffective"],
+  ["garbage collection", "automatic memory management that reclaims memory occupied by unused objects"],
+  ["garner", "to gather or collect; to acquire by effort; to earn"],
+  ["garrulous", "excessively talkative, especially on trivial matters; chatty"],
+  ["gateway", "a node serving as an entry point to another network; a connecting device"],
+  ["generate", "to produce or create; to cause to arise"],
+  ["genuine", "truly what something is said to be; authentic; sincere"],
+  ["glean", "to obtain information from various sources; to gather grain left by reapers"],
+  ["granular", "relating to or resembling granules; detailed at a fine level of detail"],
+  ["gratify", "to give pleasure or satisfaction to; to satisfy a desire or need"],
+  ["gratitude", "the quality of being thankful; readiness to show appreciation"],
+  ["grievance", "a real or imagined cause for complaint; a feeling of resentment"],
+  ["grim", "forbidding or uninviting; stern; depressing or worrying"],
+  ["groundbreaking", "breaking new ground; innovative; being the first of its kind"],
+  ["hamper", "to hinder or impede the movement or progress of; a large basket"],
+  ["handler", "a routine that is responsible for performing a specific task; an event processor"],
+  ["harangue", "a lengthy and aggressive speech; to lecture someone at length"],
+  ["hash", "the result of a hash function; a fixed-size representation of variable data"],
+  ["heap", "a region of memory for dynamic allocation; a tree-based data structure"],
+  ["hegemony", "leadership or dominance especially of one country or social group over others"],
+  ["herald", "a person or thing that announces the approach of another; to announce"],
+  ["heresy", "belief or opinion contrary to orthodox religious doctrine; unorthodox opinion"],
+  ["hesitant", "tentative; unsure; slow to act because of uncertainty or reluctance"],
+  ["heuristic", "enabling discovery or problem-solving by experimental and trial-and-error methods"],
+  ["hierarchy", "a system in which members are ranked above each other according to status"],
+  ["holistic", "relating to the whole rather than parts; treating the whole person not just symptoms"],
+  ["hypothesis", "a supposition made on the basis of limited evidence as a starting point"],
+  ["idealize", "to regard as ideal; to portray as perfect or better than reality"],
+  ["idempotent", "denoting an operation that produces the same result if applied multiple times"],
+  ["illuminate", "to light up; to help to clarify or explain; to make understandable"],
+  ["immutable", "unchanging over time; unable to be changed"],
+  ["impartial", "treating all rivals or disputants equally; not favoring one side; fair"],
+  ["impede", "to delay or prevent by obstructing; to hinder the progress of"],
+  ["implicit", "suggested though not directly expressed; essentially or virtually"],
+  ["incessant", "continuing without pause or interruption; constant; unceasing"],
+  ["incline", "to lean or slope in a particular direction; to feel willing or favorably disposed"],
+  ["indifferent", "having no particular interest in something; neither good nor bad"],
+  ["indulge", "to allow oneself to enjoy the pleasure of; to satisfy a desire fully"],
+  ["infer", "to deduce or conclude from evidence; to hint or imply something"],
+  ["inference", "a conclusion reached on the basis of evidence and reasoning"],
+  ["inflict", "to impose something unpleasant on; to cause something to be experienced"],
+  ["ingenious", "clever, original, and inventive; well devised or contrived"],
+  ["inherent", "existing in something as a permanent or essential attribute"],
+  ["inheritance", "a mechanism where a class derives properties and methods from a parent class"],
+  ["initiate", "to begin or introduce; to admit someone into a group with ritual"],
+  ["injection", "inserting code or data into a system; dependency injection pattern in software"],
+  ["innovation", "the action of introducing new methods, ideas, or products"],
+  ["inordinate", "unusually or disproportionately large; excessive"],
+  ["insightful", "having a clear understanding; showing deep understanding"],
+  ["inspire", "to fill someone with the urge or ability to do something creative"],
+  ["instance", "a specific realization of an object; a single virtual machine or container running"],
+  ["integrate", "to combine one thing with another to form a whole; to end segregation"],
+  ["integrity", "the quality of being honest and having strong moral principles; the state of being whole"],
+  ["intervene", "to come between so as to prevent or alter a result; to interfere"],
+  ["intricate", "very complicated or detailed; having many interconnected parts"],
+  ["intrinsic", "belonging naturally; essential; fundamental to the nature of something"],
+  ["intuitive", "using intuition rather than conscious reasoning; easy to use or understand"],
+  ["inundate", "to overwhelm with things to be dealt with; to flood"],
+  ["invariant", "a function, quantity, or property that remains unchanged when a transformation is applied"],
+  ["invoke", "to call on for assistance; to cite as an authority; to make active a law"],
+  ["irrational", "not logical or reasonable; not endowed with the power of reason"],
+  ["irrevocable", "not able to be changed, reversed, or recovered; final"],
+  ["iterate", "to perform repeatedly; to make repetitions; to apply a procedure repeatedly"],
+  ["iterator", "an object that enables traversal of a data structure one element at a time"],
+  ["jargon", "special words or expressions used by a profession; unintelligible talk"],
+  ["jeopardize", "to put someone or something into a situation in which there is a danger of loss"],
+  ["juxtapose", "to place two things close together to highlight contrasting effects"],
+  ["keen", "having an eager or enthusiastic interest; sharp; highly developed"],
+  ["kernel", "the central or most important part of something; the core of an operating system"],
+  ["kinetic", "relating to or resulting from motion; characterized by movement and activity"],
+  ["kubernetes", "an open-source container orchestration system for automating deployment and scaling"],
+  ["lambda", "an anonymous function; a small anonymous function in Python and other languages"],
+  ["latency", "the delay before a transfer of data begins following an instruction; sluggishness"],
+  ["legacy", "something left by a predecessor; existing software that continues to be used"],
+  ["lenient", "more merciful or tolerant than expected; not strict"],
+  ["leverage", "the power to influence decisions; to use something to maximum advantage"],
+  ["lexicon", "the vocabulary of a person, language, or branch of knowledge; a dictionary"],
+  ["linear", "arranged in a line; progressing from one stage to another in single steps"],
+  ["litigation", "the process of taking legal action; a lawsuit"],
+  ["logarithm", "the power to which a number must be raised to produce a given number"],
+  ["lucid", "expressed clearly; easy to understand; showing ability to think clearly"],
+  ["lucrative", "producing a great deal of profit; highly profitable"],
+  ["malicious", "intending or intended to do harm; arising from malice or ill will"],
+  ["malleable", "able to be hammered or pressed permanently out of shape; easily influenced"],
+  ["mandate", "an official order or commission to do something; authorization to act"],
+  ["manifest", "clear or obvious; to make evident; a list of passengers or cargo"],
+  ["manifold", "many and various; having many different forms or elements"],
+  ["manipulate", "to control or influence cleverly or unscrupulously; to handle skillfully"],
+  ["mediate", "to intervene between people in a dispute to bring about agreement"],
+  ["meticulous", "showing great attention to detail; very careful and precise"],
+  ["middleware", "software that acts as a bridge between an operating system and applications"],
+  ["migration", "moving data or software from one system to another; a database schema change"],
+  ["mimic", "to imitate someone or their actions; a person who copies another"],
+  ["mindful", "conscious or aware of something; focusing attention on the present moment"],
+  ["mitigate", "to make less severe, serious, or painful; to lessen the gravity of an offense"],
+  ["modular", "relating to modules or modular construction; using interchangeable components"],
+  ["module", "a separate unit of software or hardware; a self-contained set of code"],
+  ["momentum", "the quantity of motion of a moving body; the impetus of a developing event"],
+  ["monotonous", "dull, tedious, and repetitive; lacking variation and variety"],
+  ["multifaceted", "having many different aspects or features; complex"],
+  ["mundane", "lacking interest or excitement; dull; of this earthly world rather than spiritual"],
+  ["mutex", "mutual exclusion object used to prevent simultaneous access to a shared resource"],
+  ["naive", "showing a lack of experience or wisdom; simple and natural"],
+  ["namespace", "a container that provides context for identifiers to avoid naming conflicts"],
+  ["navigate", "to plan and direct the route of a ship, aircraft, or other form of transportation"],
+  ["negate", "to make ineffective; to nullify or make negative; to deny the existence of"],
+  ["negligible", "so small or unimportant as to be not worth considering; insignificant"],
+  ["negotiate", "to try to reach an agreement through discussion; to find a way around"],
+  ["nominal", "existing in name only; very small in comparison to real value"],
+  ["nonchalant", "calm and relaxed; feeling no worry or embarrassment; casually at ease"],
+  ["nuance", "a subtle difference in or shade of meaning, expression, or sound"],
+  ["objective", "not influenced by personal feelings; a goal or aim; relating to external facts"],
+  ["oblivious", "not aware of or concerned about what is happening; absorbed in thoughts"],
+  ["obscure", "not discovered or known about; not clearly expressed; to make dark or unclear"],
+  ["observer", "a design pattern where an object maintains a list of dependents to notify of state changes"],
+  ["obsolete", "no longer produced or used; out of date; replaced by something newer"],
+  ["obstruct", "to block; to prevent from happening; to put obstacles in the way of"],
+  ["obtain", "to come into possession of; to get something, especially by effort"],
+  ["officious", "asserting authority in an overbearing way; eagerly offering unwanted advice"],
+  ["ominous", "giving the impression that something bad is going to happen; threatening"],
+  ["omit", "to leave out or exclude; to fail to include or mention something"],
+  ["opaque", "not transparent; not clearly understood; difficult to see through"],
+  ["operator", "a symbol or function that performs operations on operands; a business running services"],
+  ["opportune", "well chosen or particularly favorable; happening at a good or convenient time"],
+  ["optimization", "the process of making a system as effective as possible; code performance improvement"],
+  ["optimize", "to make the best or most effective use of a situation or resource"],
+  ["orchestrate", "to arrange or direct the elements of a situation to produce a desired effect"],
+  ["oscillate", "to move or swing back and forth at a regular speed; to waver between positions"],
+  ["overhaul", "to take apart in order to examine and repair; a thorough examination and repair"],
+  ["overt", "done openly and not secretly; obvious and not hidden"],
+  ["pacify", "to quell the anger or agitation of someone; to establish peace"],
+  ["package", "a namespace containing related code modules; a bundled collection of software"],
+  ["paradigm", "a typical example or pattern of something; a model or framework"],
+  ["paradox", "a seemingly absurd or contradictory statement or proposition that may prove true"],
+  ["parallelism", "the state of being parallel; use of successive verbal constructions in poetry"],
+  ["parameter", "a numerical or other measurable factor forming one of a set that defines a system"],
+  ["patronize", "to treat in a condescending manner; to be a regular customer of"],
+  ["perceive", "to become aware of through the senses; to interpret in a particular way"],
+  ["persevere", "to continue in a course of action despite difficulty; to persist"],
+  ["persist", "to continue firmly in course of action in spite of difficulty; to continue to exist"],
+  ["pertinent", "relevant or applicable to a particular matter; to the point"],
+  ["philanthropy", "the desire to promote the welfare of others; charitable acts or donations"],
+  ["pipeline", "a set of data processing elements connected in series; a series of commands"],
+  ["plagiarism", "the practice of taking someone else's work or ideas and passing them off as one's own"],
+  ["plausible", "seeming reasonable or probable; having an appearance of truth"],
+  ["pointer", "a variable that stores the memory address of another variable"],
+  ["polymorphism", "the condition of occurring in several different forms; in OOP multiple forms"],
+  ["ponder", "to think about carefully; to weigh in the mind; to reflect"],
+  ["pragmatic", "dealing with things sensibly and realistically; practical"],
+  ["precarious", "not securely held in position; dependent on chance; uncertain"],
+  ["precedent", "an earlier event or action that serves as an example for future situations"],
+  ["preempt", "to take action to prevent an anticipated event; to appropriate before another"],
+  ["preliminary", "coming before or done in preparation for a main action or event"],
+  ["prevalent", "widespread in a particular area at a particular time; common"],
+  ["principle", "a fundamental truth or proposition serving as the foundation for a system"],
+  ["process", "an instance of a computer program being executed; a systematic series of actions"],
+  ["proficiency", "a high degree of competence or skill; expertise in something"],
+  ["profound", "very great or intense; having or showing deep insight; thoroughgoing"],
+  ["prolific", "producing much work; present in large numbers or quantities"],
+  ["propagate", "to spread widely; to breed specimens of a plant by natural processes"],
+  ["proponent", "a person who advocates for a theory or course of action; a supporter"],
+  ["protagonist", "the main character in a story; the leading actor in a situation"],
+  ["protocol", "a set of rules governing data exchange between systems; a network standard"],
+  ["prototype", "a first or preliminary model of something from which other forms are developed"],
+  ["provoking", "stimulating interest or anger; causing an emotional reaction"],
+  ["prudent", "acting with or showing care and thought for the future; wise in practical affairs"],
+  ["quantify", "to express or measure the quantity of; to determine the amount of"],
+  ["query", "a question or inquiry; to ask a question about; to retrieve data from a database"],
+  ["queue", "a list of data items waiting to be processed; a line of people waiting"],
+  ["rationale", "a set of reasons or a logical basis for a course of action or belief"],
+  ["reciprocal", "given or felt by each toward the other; mathematical inverse"],
+  ["recursion", "a method where the solution depends on solving smaller instances of the same problem"],
+  ["recursive", "characterized by recurrence or repetition; a function that calls itself"],
+  ["redundant", "not needed or more than is necessary; containing excess beyond what is needed"],
+  ["refactor", "to restructure existing code without changing its external behavior"],
+  ["refactoring", "improving the structure of existing code without changing its external behavior"],
+  ["refute", "to prove a statement or theory is wrong; to deny the accuracy of"],
+  ["registry", "a database of settings used by the operating system; a storage for container images"],
+  ["reiterate", "to say something again or a number of times for emphasis or clarity"],
+  ["relevant", "closely connected or appropriate to what is being done; pertinent"],
+  ["relinquish", "to voluntarily give up or cease to retain; to surrender"],
+  ["remedy", "a solution to a problem; a medicine or treatment for a disease"],
+  ["replete", "filled or well-supplied with something; having more than enough"],
+  ["repudiate", "to refuse to accept or be associated with; to deny the truth of"],
+  ["resilient", "able to recover quickly from difficult conditions; spring back into shape"],
+  ["resolute", "admirably purposeful, determined, and unwavering; firm in purpose"],
+  ["restrain", "to prevent from doing something; to keep under control; to limit"],
+  ["reticent", "not revealing one's thoughts or feelings readily; reserved; reluctant"],
+  ["retrospective", "looking back on or dealing with past events; a survey of past work"],
+  ["revere", "to feel deep respect or admiration for; to venerate"],
+  ["rigorous", "extremely thorough and careful; adhering strictly to rules or principles"],
+  ["robust", "strong and healthy; sturdy; able to withstand or overcome adverse conditions"],
+  ["runtime", "the period during which a program is running; the execution environment of a program"],
+  ["sabotage", "to deliberately destroy, damage, or obstruct something; to undermine"],
+  ["sagacious", "having keen mental discernment and good judgment; shrewd"],
+  ["salient", "most noticeable or important; projecting outward beyond a line"],
+  ["sanctimonious", "making a show of being morally superior; excessively pious"],
+  ["sandbox", "an isolated environment for testing software safely without affecting the main system"],
+  ["sarcastic", "using irony to mock or convey contempt; cutting; sharp"],
+  ["scalable", "able to be changed in size or scale; capable of being easily expanded"],
+  ["scheduler", "a component that manages allocation of resources and execution order of processes"],
+  ["schema", "a representation of a plan or theory in the form of an outline or model"],
+  ["scrutinize", "to examine or inspect closely and thoroughly; to look at critically"],
+  ["seamless", "smooth and continuous with no apparent gaps or spaces; without interruption"],
+  ["sedulous", "showing dedication and diligence; persevering; assiduous"],
+  ["semantic", "relating to meaning in language or logic; of or relating to semantics"],
+  ["semaphore", "a variable used to control access to a common resource by multiple processes"],
+  ["sequential", "following in a logical order or sequence; arranged one after another"],
+  ["serene", "calm, peaceful, and untroubled; tranquil"],
+  ["serialization", "converting an object into a storable or transmittable format"],
+  ["session", "a period of interaction between a user and a computer system; a temporary connection"],
+  ["shrewd", "having sharp powers of judgment; astute; cleverly calculated"],
+  ["significant", "sufficiently great or important to be worthy of attention; meaningful"],
+  ["simulate", "to imitate the appearance or character of; to produce a computer model of"],
+  ["singleton", "a design pattern restricting a class to one instance; a set with one element"],
+  ["singular", "exceptionally good or great; remarkable; one and only; unique"],
+  ["skeptical", "not easily convinced; having doubts or reservations; questioning"],
+  ["skepticism", "a skeptical attitude; doubt about a claim or theory"],
+  ["socket", "an endpoint for communication between two machines over a network"],
+  ["solemn", "formal and dignified; serious; characterized by deep sincerity"],
+  ["solicit", "to ask for or try to obtain from someone; to request"],
+  ["sophisticated", "having a refined knowledge of the world and its ways; highly developed"],
+  ["speculation", "the forming of a theory without firm evidence; investment in risky ventures"],
+  ["spontaneous", "performed without planning; arising from natural impulse"],
+  ["sporadic", "occurring at irregular intervals; not continuous or steady"],
+  ["static", "lacking movement or change; relating to stationary electric charges"],
+  ["steadfast", "resolutely or dutifully firm and unwavering; loyal"],
+  ["stoic", "enduring pain and hardship without showing feelings; impassive"],
+  ["stringent", "strict, precise, and exacting; requiring exact standards of precision"],
+  ["suboptimal", "below the highest standard or quality; not the best possible"],
+  ["subtle", "so slight as to be difficult to detect; making use of clever indirect methods"],
+  ["succinct", "briefly and clearly expressed; compressed into few words"],
+  ["superfluous", "unnecessary, especially through being more than enough; redundant"],
+  ["supplement", "something added to complete or enhance something else; an addition"],
+  ["suppress", "to prevent from being known or seen; to prevent the development of something"],
+  ["surpass", "to be greater or better than; to exceed or go beyond"],
+  ["sustain", "to strengthen or support physically or mentally; to keep something going"],
+  ["synchronize", "to cause to occur at the same time; to coordinate in time; to operate in unison"],
+  ["syntax", "the arrangement of words and phrases to create well-formed sentences"],
+  ["synthesize", "to combine elements to form a connected whole; to produce a compound"],
+  ["tactful", "having or showing skill in dealing with difficult situations; considerate"],
+  ["tangible", "perceptible by touch; clear and definite; real rather than imaginary"],
+  ["tedious", "too long, slow, or dull; tiresome or monotonous"],
+  ["template", "a preset format used as a starting point for creating new content or code"],
+  ["temporal", "relating to time; of or relating to worldly as opposed to spiritual affairs"],
+  ["tenacious", "tending to keep a firm hold; persistent; not readily letting go"],
+  ["terminate", "to bring to an end; to come to an end; to dismiss from employment"],
+  ["terse", "sparing in the use of words; brief and to the point; curt"],
+  ["theoretical", "concerned with theory rather than practical application; not proven"],
+  ["thread", "a sequence of programmed instructions managed independently by a scheduler"],
+  ["threshold", "the magnitude or intensity that must be exceeded for a reaction to occur; a level"],
+  ["throughput", "the amount of material or items passing through a system in a given period"],
+  ["timeout", "a fixed period of time within which an operation must complete or be aborted"],
+  ["tolerance", "the ability to accept different views; willingness to allow something"],
+  ["torment", "to cause severe physical or mental suffering; severe suffering"],
+  ["transaction", "an atomic unit of work that either fully completes or fully fails"],
+  ["transparent", "allowing light to pass through so objects can be seen clearly; honest"],
+  ["traversal", "the process of visiting each node in a tree or graph structure"],
+  ["traverse", "to travel across or through; to move back and forth over"],
+  ["trite", "overused and therefore lacking interest; unoriginal"],
+  ["trivial", "of little value or importance; denoting a solution in mathematics that is obvious"],
+  ["trivialize", "to make something seem less important or serious than it actually is"],
+  ["turbulent", "characterized by conflict, disorder, or confusion; moving unsteadily"],
+  ["ubiquitous", "present, appearing, or found everywhere; widespread"],
+  ["unambiguous", "not open to more than one interpretation; clear and decisive"],
+  ["undermine", "to weaken or damage something gradually; to erode the base or foundation of"],
+  ["uniform", "remaining the same in all cases; not varying or changing; a distinctive outfit"],
+  ["unique", "being the only one of its kind; unlike anything else; particularly remarkable"],
+  ["universal", "relating to or done by all people; applicable to all cases"],
+  ["unwavering", "not wavering; steady or resolute; consistent"],
+  ["utilize", "to make practical and effective use of; to use for a particular purpose"],
+  ["vague", "of uncertain or indefinite character; not clearly expressed or identified"],
+  ["validate", "to check or prove the validity of; to confirm the accuracy or truth of"],
+  ["variable", "not consistent or having a fixed pattern; likely to change; a quantity that varies"],
+  ["venerate", "to regard with great respect; to revere; to treat with deference"],
+  ["verbatim", "in exactly the same words as were used originally; word for word"],
+  ["verbose", "using or expressed in more words than are needed; wordy"],
+  ["verify", "to make sure or demonstrate that something is true or accurate; to confirm"],
+  ["versatile", "able to adapt to many different functions; having varied uses or qualities"],
+  ["vex", "to make someone feel annoyed, frustrated, or worried; to afflict"],
+  ["viable", "capable of working successfully; feasible; capable of surviving or living"],
+  ["vigilant", "keeping careful watch for possible danger or difficulties; alert"],
+  ["vindicate", "to clear someone of blame or suspicion; to show to be right"],
+  ["virtuous", "having or showing high moral standards; righteous"],
+  ["vivid", "producing powerful feelings or clear images in the mind; intense; bright"],
+  ["volatile", "liable to change rapidly and unpredictably; easily evaporated at normal temperatures"],
+  ["vulnerability", "the quality or state of being exposed to the possibility of attack or harm"],
+  ["wary", "feeling or showing caution about possible dangers; watchful"],
+  ["webhook", "an HTTP callback triggered by a specific event; a way for apps to get real-time data"],
+  ["wholesome", "conducive to or promoting moral well-being; healthy; morally sound"],
+  ["widespread", "found, distributed, or occurring over a large area or number of people"],
+  ["willful", "intentional; deliberate; having a strong will; obstinately self-willed"],
+  ["wistful", "having or showing a feeling of vague longing; yearning pensively"],
+  ["wrapper", "code that encapsulates other code or a component to provide a different interface"],
+  ["yield", "to produce or provide; to give way to arguments; the full amount produced"],
+  ["zeal", "great energy or enthusiasm in pursuit of a cause; fervor"],
+  ["zealous", "having or showing great energy or enthusiasm in pursuit of a cause"],
+  ["zenith", "the highest point; the time at which something is most powerful"]
+];
+// Load all initial words into linked list
+initWords.forEach(function(pair) { insertSorted(pair[0], pair[1]); });
+
+// ══════════════════════════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════════════════════════
+function switchTab(name) {
+  var names = ['search', 'add', 'browse', 'code'];
+  document.querySelectorAll('.tab').forEach(function(t, i) {
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.section').forEach(function(s) {
+    s.classList.remove('show');
+  });
+  document.getElementById('tab-' + name).classList.add('show');
+
+  if (name === 'browse') renderTable();
+  if (name === 'code')   renderCpp();
+}
+
+// ══════════════════════════════════════════════
+//  SEARCH — live autocomplete with binary search
+// ══════════════════════════════════════════════
+function onSearch() {
+  var q       = document.getElementById('searchInput').value.toLowerCase().trim();
+  var arr     = listToArray();
+  var sugBox  = document.getElementById('suggestionsBox');
+  var resBox  = document.getElementById('wordResult');
+  var stpBox  = document.getElementById('bsSteps');
+
+  if (!q) {
+    sugBox.innerHTML = '';
+    resBox.innerHTML = '';
+    stpBox.innerHTML = '';
+    return;
+  }
+
+  var bs = binarySearchPrefix(arr, q);
+  var matches = [];
+
+  if (bs.result !== -1) {
+    // scan forward
+    for (var i = bs.result; i < arr.length && arr[i].word.startsWith(q); i++) {
+      matches.push({ word: arr[i].word, meaning: arr[i].meaning, idx: i });
+    }
+    // scan backward (in case binary search didn't land on the very first)
+    for (var j = bs.result - 1; j >= 0 && arr[j].word.startsWith(q); j--) {
+      matches.unshift({ word: arr[j].word, meaning: arr[j].meaning, idx: j });
+    }
+  }
+
+  // Render suggestions
+  if (matches.length === 0) {
+    sugBox.innerHTML = '<div class="suggestions"><div class="sug-item err" style="color:#e03c3c">No matches found for "' + q + '"</div></div>';
+  } else {
+    var html = '<div class="suggestions">';
+    matches.slice(0, 7).forEach(function(m) {
+      var hlPart   = m.word.slice(0, q.length);
+      var restPart = m.word.slice(q.length);
+      html += '<div class="sug-item" onclick="selectWord(\'' + m.word + '\')">';
+      html += '<span><span class="match-hl">' + hlPart + '</span>' + restPart + '</span>';
+      html += '<span class="sug-idx">arr[' + m.idx + ']</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    sugBox.innerHTML = html;
+  }
+
+  // Render binary search steps
+  if (bs.steps.length > 0) {
+    var shtml = '<div class="steps-box"><div class="steps-title">Binary Search Steps — O(log n)</div>';
+    bs.steps.forEach(function(s) {
+      shtml += '<div class="step-row ' + (s.hit ? 'hit' : '') + '">' + s.msg + '</div>';
+    });
+    shtml += '</div>';
+    stpBox.innerHTML = shtml;
+  } else {
+    stpBox.innerHTML = '';
+  }
+
+  resBox.innerHTML = '';
+}
+
+function selectWord(word) {
+  document.getElementById('searchInput').value = word;
+  var arr  = listToArray();
+  var item = null;
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i].word === word) { item = arr[i]; break; }
+  }
+  document.getElementById('suggestionsBox').innerHTML = '';
+  document.getElementById('bsSteps').innerHTML        = '';
+  if (item) {
+    document.getElementById('wordResult').innerHTML =
+      '<div class="word-result"><strong>' + item.word + '</strong><p>' + item.meaning + '</p></div>';
+  }
+}
+
+// ══════════════════════════════════════════════
+//  ADD WORD
+// ══════════════════════════════════════════════
+function addWord() {
+  var word    = document.getElementById('newWord').value.toLowerCase().trim();
+  var meaning = document.getElementById('newMeaning').value.trim();
+  var msgEl   = document.getElementById('addMsg');
+  var infoEl  = document.getElementById('insertInfo');
+
+  if (!word || !meaning) {
+    msgEl.className   = 'msg err';
+    msgEl.textContent = 'Please fill both fields.';
+    return;
+  }
+
+  if (exists(word)) {
+    msgEl.className   = 'msg err';
+    msgEl.textContent = '"' + word + '" already exists in the dictionary.';
+    infoEl.innerHTML  = '';
+    return;
+  }
+
+  var arr    = listToArray();
+  var pos    = bsInsertPos(arr, word);
+  var before = pos > 0          ? arr[pos - 1].word : null;
+  var after  = pos < arr.length ? arr[pos].word     : null;
+
+  insertSorted(word, meaning);
+
+  msgEl.className   = 'msg ok';
+  msgEl.textContent = '"' + word + '" added successfully!';
+
+  infoEl.innerHTML =
+    '<div class="insert-info">' +
+    'Inserted at position <strong>' + pos + '</strong> in sorted order<br>' +
+    (before ? 'After: <strong>' + before + '</strong>' : 'At the beginning') +
+    ' &nbsp;·&nbsp; ' +
+    (after  ? 'Before: <strong>' + after + '</strong>' : 'At the end') +
+    '</div>';
+
+  document.getElementById('newWord').value    = '';
+  document.getElementById('newMeaning').value = '';
+}
+
+// ══════════════════════════════════════════════
+//  BROWSE — show full dictionary table
+// ══════════════════════════════════════════════
+function renderTable() {
+  var arr  = listToArray();
+  var html = '';
+  arr.forEach(function(item, i) {
+    html += '<tr>';
+    html += '<td class="idx-col">' + i + '</td>';
+    html += '<td><strong>' + item.word + '</strong></td>';
+    html += '<td class="meaning-col">' + item.meaning + '</td>';
+    html += '</tr>';
+  });
+  document.getElementById('dictTable').innerHTML  = html;
+  document.getElementById('dictCount').textContent = arr.length;
+}
+
+// ══════════════════════════════════════════════
+//  C++ CODE — syntax highlighted
+// ══════════════════════════════════════════════
+function renderCpp() {
+  document.getElementById('cppBox').innerHTML =
+'<span class="cm">// ══════════════════════════════════════════</span>\n' +
+'<span class="cm">// Dictionary — DSA Project in C++</span>\n' +
+'<span class="cm">// Concepts: Linked List, Binary Search</span>\n' +
+'<span class="cm">// ══════════════════════════════════════════</span>\n\n' +
+'<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>\n' +
+'<span class="kw">#include</span> <span class="str">&lt;string&gt;</span>\n' +
+'<span class="kw">using namespace</span> std;\n\n' +
+'<span class="cm">// ── Linked List Node ──────────────────────</span>\n' +
+'<span class="kw">struct</span> Node {\n' +
+'    string word, meaning;\n' +
+'    Node* next;\n' +
+'    Node(string w, string m) : word(w), meaning(m), next(<span class="kw">nullptr</span>) {}\n' +
+'};\n\n' +
+'Node* head = <span class="kw">nullptr</span>;\n\n' +
+'<span class="cm">// ── Insert word in sorted order ───────────</span>\n' +
+'<span class="cm">// Uses Linked List — O(n)</span>\n' +
+'<span class="kw">void</span> <span class="fn">insertSorted</span>(string word, string meaning) {\n' +
+'    Node* newNode = <span class="kw">new</span> Node(word, meaning);\n\n' +
+'    <span class="cm">// empty list or word goes at front</span>\n' +
+'    <span class="kw">if</span> (!head || word &lt; head-&gt;word) {\n' +
+'        newNode-&gt;next = head;\n' +
+'        head = newNode;\n' +
+'        <span class="kw">return</span>;\n' +
+'    }\n\n' +
+'    <span class="cm">// walk until we find the right spot</span>\n' +
+'    Node* curr = head;\n' +
+'    <span class="kw">while</span> (curr-&gt;next &amp;&amp; curr-&gt;next-&gt;word &lt;= word)\n' +
+'        curr = curr-&gt;next;\n\n' +
+'    newNode-&gt;next = curr-&gt;next;\n' +
+'    curr-&gt;next = newNode;\n' +
+'}\n\n' +
+'<span class="cm">// ── Convert list to array ─────────────────</span>\n' +
+'<span class="cm">// Binary Search needs random access (array)</span>\n' +
+'<span class="kw">int</span> <span class="fn">listToArray</span>(Node* head, string words[], string meanings[], <span class="kw">int</span> maxSize) {\n' +
+'    <span class="kw">int</span> i = <span class="num">0</span>;\n' +
+'    Node* curr = head;\n' +
+'    <span class="kw">while</span> (curr &amp;&amp; i &lt; maxSize) {\n' +
+'        words[i]    = curr-&gt;word;\n' +
+'        meanings[i] = curr-&gt;meaning;\n' +
+'        i++;\n' +
+'        curr = curr-&gt;next;\n' +
+'    }\n' +
+'    <span class="kw">return</span> i;\n' +
+'}\n\n' +
+'<span class="cm">// ── Binary Search: find first prefix match ─</span>\n' +
+'<span class="cm">// Time complexity: O(log n)</span>\n' +
+'<span class="kw">int</span> <span class="fn">binarySearchPrefix</span>(string words[], <span class="kw">int</span> n, string prefix) {\n' +
+'    <span class="kw">int</span> lo = <span class="num">0</span>, hi = n - <span class="num">1</span>, result = -<span class="num">1</span>;\n\n' +
+'    <span class="kw">while</span> (lo &lt;= hi) {\n' +
+'        <span class="kw">int</span> mid = (lo + hi) / <span class="num">2</span>;\n\n' +
+'        <span class="cm">// check if mid word starts with prefix</span>\n' +
+'        <span class="kw">if</span> (words[mid].substr(<span class="num">0</span>, prefix.size()) == prefix) {\n' +
+'            result = mid;\n' +
+'            hi = mid - <span class="num">1</span>;  <span class="cm">// go left to find FIRST match</span>\n\n' +
+'        } <span class="kw">else if</span> (words[mid] &lt; prefix) {\n' +
+'            lo = mid + <span class="num">1</span>;  <span class="cm">// go right</span>\n\n' +
+'        } <span class="kw">else</span> {\n' +
+'            hi = mid - <span class="num">1</span>;  <span class="cm">// go left</span>\n' +
+'        }\n' +
+'    }\n' +
+'    <span class="kw">return</span> result;\n' +
+'}\n\n' +
+'<span class="cm">// ── Main ──────────────────────────────────</span>\n' +
+'<span class="kw">int</span> <span class="fn">main</span>() {\n' +
+'    <span class="cm">// Add some words</span>\n' +
+'    <span class="fn">insertSorted</span>(<span class="str">"array"</span>,     <span class="str">"collection of elements"</span>);\n' +
+'    <span class="fn">insertSorted</span>(<span class="str">"binary"</span>,    <span class="str">"system with two values"</span>);\n' +
+'    <span class="fn">insertSorted</span>(<span class="str">"queue"</span>,     <span class="str">"FIFO data structure"</span>);\n' +
+'    <span class="fn">insertSorted</span>(<span class="str">"algorithm"</span>, <span class="str">"step-by-step procedure"</span>);\n\n' +
+'    <span class="cm">// Convert to array for binary search</span>\n' +
+'    string words[<span class="num">1000</span>], meanings[<span class="num">1000</span>];\n' +
+'    <span class="kw">int</span> n = <span class="fn">listToArray</span>(head, words, meanings, <span class="num">1000</span>);\n\n' +
+'    <span class="cm">// Search with prefix</span>\n' +
+'    string prefix;\n' +
+'    cout &lt;&lt; <span class="str">"Enter prefix: "</span>;\n' +
+'    cin &gt;&gt; prefix;\n\n' +
+'    <span class="kw">int</span> idx = <span class="fn">binarySearchPrefix</span>(words, n, prefix);\n\n' +
+'    <span class="kw">if</span> (idx == -<span class="num">1</span>) {\n' +
+'        cout &lt;&lt; <span class="str">"No words found."</span> &lt;&lt; endl;\n' +
+'    } <span class="kw">else</span> {\n' +
+'        <span class="kw">for</span> (<span class="kw">int</span> i = idx; i &lt; n &amp;&amp;\n' +
+'             words[i].substr(<span class="num">0</span>, prefix.size()) == prefix; i++) {\n' +
+'            cout &lt;&lt; words[i] &lt;&lt; <span class="str">" - "</span> &lt;&lt; meanings[i] &lt;&lt; endl;\n' +
+'        }\n' +
+'    }\n\n' +
+'    <span class="kw">return</span> <span class="num">0</span>;\n' +
+'}\n';
+}
+</script>
+</body>
+</html>
